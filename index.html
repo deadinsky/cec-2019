@@ -1,0 +1,22 @@
+<!doctype html>
+<html>
+    <head>
+        <title>CEC 2019 Programming Competition</title>
+        <link rel="stylesheet" href="style.css">
+    </head>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
+    <script src="updateInstance.js"></script>
+    <script>
+        $(function () {
+            var socket = io();
+            socket.on('updateInstance', function(payload) {
+                document.body.innerHTML = updateInstance(payload);
+            });
+        });
+    </script>
+    <body>
+        <div id="display-board"></div>
+        <div id="display-stats"></div>
+    </body>
+</html>
