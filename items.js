@@ -8,6 +8,18 @@ class Item {
 	}
 }
 
+exports.itemsCount = function(items, type) {
+	var itemCount = 0;
+	items.forEach(function(item) {
+		switch (item.type) {
+			case type:
+				itemCount++;
+				break;
+		}
+	});
+	return itemCount;
+}
+
 exports.presentationItems = [
 	new Item(0, 1, 1, "GARBAGE", [1]),
 	new Item(1, 1, 1, "GARBAGE"),

@@ -2,6 +2,7 @@ updateInstance = function(payload) {
 	var data = payload["presentationData"];
 	var instance = payload["presentationInstance"];
 	var binLocations = payload["binLocations"];
+	var totalCount = payload["totalCount"];
 	var isRunning = instance != null;
 
 	var displayDim = data.length;
@@ -72,8 +73,9 @@ updateInstance = function(payload) {
 	var displayStats = document.getElementById("display-stats");
 	var types = ["", "garbage", "recycle", "organic", "hidden"];
 	var counts = ["", "3+", "2", "1", "0"];
-	var itemsHidden = (isRunning ? (instance.constants.TOTAL_COUNT.GARBAGE + instance.constants.TOTAL_COUNT.RECYCLE + instance.constants.TOTAL_COUNT.ORGANIC) - (instance.itemsLocated.length + instance.itemsHeld.length + instance.itemsBin.length + instance.itemsCollected.length) : 0);
-	var itemsLeft = (isRunning ? (instance.constants.TOTAL_COUNT.GARBAGE + instance.constants.TOTAL_COUNT.RECYCLE + instance.constants.TOTAL_COUNT.ORGANIC) - instance.itemsCollected.length : 0);
+	var itemsTotal = totalCount.GARBAGE + totalCount.RECYCLE + totalCount.ORGANIC;
+	var itemsHidden = (isRunning ? itemsTotal - (instance.itemsLocated.length + instance.itemsHeld.length + instance.itemsBin.length + instance.itemsCollected.length) : itemsTotal);
+	var itemsLeft = (isRunning ? itemsTotal - instance.itemsCollected.length : itemsTotal);
 
 	displayStatsHTML = '<div id="stats-info">';
 	displayStatsHTML += '<p>Direction: ' + (isRunning ? instance.direction : "N") + '</p>';
@@ -83,8 +85,8 @@ updateInstance = function(payload) {
 	displayStatsHTML += '<p>Items Held: ' + (isRunning ? instance.itemsHeld.length.toString() : 0) + '</p>';
 	displayStatsHTML += '<p>Items Bin: ' + (isRunning ? instance.itemsBin.length.toString() : 0) + '</p>';
 	displayStatsHTML += '<p>Items Collected: ' + (isRunning ? instance.itemsCollected.length.toString() : 0) + '</p>';
-	displayStatsHTML += '<p>Items Hidden: ' + (isRunning ? itemsHidden.toString() : 0) + '</p>';
-	displayStatsHTML += '<p>Items Left: ' + (isRunning ? itemsLeft.toString() : 0) + '</p>';
+	displayStatsHTML += '<p>Items Hidden: ' + itemsHidden.toString() + '</p>';
+	displayStatsHTML += '<p>Items Left: ' + itemsLeft.toString() + '</p>';
 	displayStatsHTML += '</div><div id="stats-guide" style="height:50%;width:100%">';
 	for (var i = 0; i < 5; i++) {
 		displayStatsHTML += '<div class="stats-row">';

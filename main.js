@@ -1,14 +1,22 @@
 var PRESENTATION_PHASE = false;
+var SHOW_TOTAL_COUNT = true;
 
-var app = require('express')();
+var app = require("express")();
 var fs = require("fs");
-var http = require('http').Server(app);
-var io = (PRESENTATION_PHASE ? require('socket.io')(http) : null);
+var http = require("http").Server(app);
+var io = (PRESENTATION_PHASE ? require("socket.io")(http) : null);
+var itemsExport = require("./items.js");
 
 var presentationTemplate;
 var presentationData;
 
-var items = (PRESENTATION_PHASE ? require('./items.js').presentationItems : require('./items.js').designItems);
+var items = (PRESENTATION_PHASE ? itemsExport.presentationItems : itemsExport.designItems);
+
+var totalCount = {
+	ORGANIC: itemsExport.itemsCount(items, "ORGANIC"),
+	RECYCLE: itemsExport.itemsCount(items, "RECYCLE"),
+	GARBAGE: itemsExport.itemsCount(items, "GARBAGE")
+};
 
 var delayTime = (PRESENTATION_PHASE ? 0 : 475);
 var roomDim = (PRESENTATION_PHASE ? 30 : 20);
@@ -168,11 +176,6 @@ class Instance {
 				COLLECT_ITEM: 2,
 				UNLOAD_ITEM: 2
 			},
-			TOTAL_COUNT: {
-				ORGANIC: 70,
-				RECYCLE: 60,
-				GARBAGE: 60
-			},
 			BIN_CAPACITY: {
 				ORGANIC: 25,
 				RECYCLE: 15,
@@ -181,6 +184,10 @@ class Instance {
 			BIN_COLLECTION_CYCLE: 150,
 			SCAN_RADIUS: 3
 		};
+
+		if (SHOW_TOTAL_COUNT) {
+			this.constants.TOTAL_COUNT = totalCount;
+		}
 	}
 
 	increaseTime(constant) {
@@ -427,7 +434,8 @@ populatePresentationData = function(instance) {
 	instance.itemsHeld.concat(instance.itemsBin).concat(instance.itemsCollected).forEach(function(item) {
 		presentationData[item.x][item.y]["HIDDEN"]--;
 	});
-	io.emit('updateInstance', {"presentationData": presentationData, "presentationInstance": instance, "binLocations": binLocations});
+	io.emit('updateInstance', {"presentationData": presentationData, "presentationInstance": instance,
+		"binLocations": binLocations, "totalCount": totalCount});
 }
 
 app.get('/instance', function (req, res) {
@@ -517,7 +525,8 @@ app.get('/updateInstance.js', function(req, res) {
 if (PRESENTATION_PHASE) {
 	io.on('connection', function(socket) {
 		io.emit('updateInstance', (presentationData ? {"presentationData": presentationData, "presentationInstance": instances[presentationKey], 
-			"binLocations": binLocations} : {"presentationData": presentationTemplate, "presentationInstance": null, "binLocations": binLocations}));
+			"binLocations": binLocations, "totalCount": totalCount} : {"presentationData": presentationTemplate, "presentationInstance": null,
+			"binLocations": binLocations, "totalCount": totalCount}));
 	});
 }
 
